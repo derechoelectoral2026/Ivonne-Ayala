@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Simulacro INE – Subdirección de Verificación en Campo</title>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Segoe UI',sans-serif; background:#fff0f6; color:#222; min-height:100dvh; overflow-x:hidden; }
+
+.header { background:linear-gradient(135deg,#880e4f,#e91e8c); color:white; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,.2); position:sticky; top:0; z-index:200; }
+.header-logo { font-size:1.35rem; flex-shrink:0; }
+.header-text { flex:1; min-width:0; }
+.header h1 { font-size:.86rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.header p  { font-size:.6rem; opacity:.82; margin-top:1px; }
+.header-right { flex-shrink:0; text-align:right; }
+.timer { font-size:1.45rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.5px; line-height:1; }
+.t-lbl { font-size:.55rem; opacity:.65; margin-top:1px; }
+.timer.warning { color:#ffe082; }
+.timer.danger  { color:#ff6b6b; animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.45} }
+.progress-wrap { background:#f8bbd0; height:3px; }
+.progress-bar  { height:3px; background:#fff; transition:width .4s; }
+
+.main { padding:12px 12px 80px; max-width:600px; margin:0 auto; }
+
+.start-screen { background:white; border-radius:14px; padding:22px 16px; box-shadow:0 2px 12px rgba(0,0,0,.08); margin-top:14px; text-align:center; }
+.start-screen h2 { font-size:1.2rem; color:#880e4f; margin-bottom:10px; line-height:1.3; }
+.info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:15px 0; }
+.info-card { background:#fce4ec; border-radius:10px; padding:11px 8px; }
+.info-card .num { font-size:1.5rem; font-weight:800; color:#880e4f; }
+.info-card .lbl { font-size:.72rem; color:#666; margin-top:2px; }
+.topic-section { text-align:left; margin:13px 0; }
+.topic-section-title { font-size:.71rem; font-weight:800; color:#880e4f; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; padding-left:8px; border-left:3px solid #e91e8c; }
+.topic-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+.topic-pill { background:#fce4ec; border-radius:7px; padding:6px 10px; font-size:.75rem; color:#880e4f; display:flex; justify-content:space-between; gap:6px; }
+.topic-pill .cnt { font-weight:800; flex-shrink:0; }
+.level-banner { background:linear-gradient(135deg,#4a148c,#880e4f); color:white; border-radius:10px; padding:10px 12px; margin:10px 0; font-size:.78rem; text-align:left; line-height:1.45; }
+.level-banner strong { color:#ffe082; }
+.formats-banner { background:#fff3e0; border-left:3px solid #ff9800; border-radius:8px; padding:9px 11px; margin:8px 0; font-size:.74rem; text-align:left; color:#5d4037; line-height:1.5; }
+.formats-banner strong { color:#e65100; }
+
+.question-card { background:white; border-radius:12px; padding:15px 13px; box-shadow:0 2px 10px rgba(0,0,0,.07); margin-bottom:12px; animation:fadeUp .25s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)} }
+.q-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:11px; flex-wrap:wrap; gap:5px; }
+.q-badge { font-size:.66rem; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; }
+.q-right { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.q-num { color:#aaa; font-size:.75rem; }
+.q-type { font-size:.58rem; font-weight:700; padding:2px 7px; border-radius:10px; letter-spacing:.3px; }
+.q-type.seq { background:#e0f7fa; color:#006064; }
+.q-type.rel { background:#f3e5f5; color:#4a148c; }
+.q-type.cas { background:#fff3e0; color:#e65100; }
+.q-type.dir { background:#e8f5e9; color:#2e7d32; }
+
+.passage { background:#fff0f6; border-left:4px solid #e91e8c; padding:10px 12px; border-radius:0 8px 8px 0; margin-bottom:12px; font-size:.83rem; line-height:1.7; }
+.passage-label { font-size:.64rem; font-weight:700; color:#880e4f; text-transform:uppercase; margin-bottom:5px; }
+
+.question-text { font-size:.9rem; font-weight:600; line-height:1.5; margin-bottom:13px; }
+
+.listado { background:#fafafa; border:1px solid #e0e0e0; border-radius:9px; padding:11px 13px; margin-bottom:13px; font-size:.83rem; line-height:1.6; }
+.listado-title { font-size:.67rem; font-weight:700; color:#555; text-transform:uppercase; margin-bottom:7px; letter-spacing:.3px; }
+.listado ol, .listado ul { padding-left:22px; margin:0; }
+.listado li { margin-bottom:4px; }
+
+.rel-cols { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.rel-col { background:#fafafa; border:1px solid #e0e0e0; border-radius:9px; padding:9px 10px; }
+.rel-col-title { font-size:.66rem; font-weight:800; color:#880e4f; text-transform:uppercase; margin-bottom:6px; letter-spacing:.3px; }
+.rel-col ol { padding-left:18px; margin:0; font-size:.8rem; line-height:1.5; }
+.rel-col ul { padding-left:0; list-style:none; margin:0; font-size:.8rem; line-height:1.5; }
+.rel-col li { margin-bottom:5px; }
+
+.options { display:flex; flex-direction:column; gap:8px; }
+.option { display:flex; align-items:flex-start; gap:10px; padding:13px 12px; border:2px solid #e0e0e0; border-radius:10px; cursor:pointer; transition:border-color .13s,background .13s; font-size:.86rem; line-height:1.45; min-height:50px; }
+.option:active:not(.disabled) { border-color:#e91e8c; background:#fce4ec33; }
+.option.selected  { border-color:#e91e8c; background:#fce4ec55; }
+.option.correct   { border-color:#4caf50; background:#e8f5e9; }
+.option.incorrect { border-color:#f44336; background:#ffebee; }
+.option.disabled  { cursor:default; }
+.option-letter { width:26px; height:26px; border-radius:50%; background:#eee; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.75rem; flex-shrink:0; transition:background .13s,color .13s; }
+.option.selected  .option-letter { background:#e91e8c; color:white; }
+.option.correct   .option-letter { background:#4caf50; color:white; }
+.option.incorrect .option-letter { background:#f44336; color:white; }
+.opt-text { flex:1; }
+.opt-icon { flex-shrink:0; font-size:.9rem; }
+
+.explanation { margin-top:12px; padding:11px 12px; background:#fff0f6; border-radius:9px; border-left:4px solid #e91e8c; font-size:.81rem; line-height:1.65; display:none; }
+.explanation.show { display:block; }
+.explanation strong { color:#880e4f; }
+
+.ver-sol-wrap { text-align:center; margin-bottom:10px; }
+.btn-ver-sol { background:white; border:2px solid #e91e8c; color:#880e4f; padding:9px 20px; border-radius:9px; font-weight:700; font-size:.82rem; cursor:pointer; min-height:44px; transition:all .13s; }
+.btn-ver-sol:active { background:#fce4ec; }
+
+.btn { padding:10px 18px; border-radius:10px; border:none; font-size:.85rem; font-weight:700; cursor:pointer; transition:all .15s; min-height:44px; }
+.btn:active { transform:scale(.96); }
+.btn-primary   { background:linear-gradient(135deg,#880e4f,#e91e8c); color:white; }
+.btn-primary:active   { opacity:.88; }
+.btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+.btn-secondary { background:#f0f0f0; color:#555; }
+.btn-secondary:active { background:#e0e0e0; }
+.btn-lg { padding:13px 26px; font-size:.92rem; border-radius:12px; }
+.btn-sm { padding:9px 15px; font-size:.8rem; min-height:40px; }
+
+.nav-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #e0e0e0; padding:8px 14px; padding-bottom:max(8px,env(safe-area-inset-bottom)); display:flex; justify-content:space-between; align-items:center; gap:8px; box-shadow:0 -2px 10px rgba(0,0,0,.07); z-index:200; }
+.nav-info { font-size:.77rem; color:#888; line-height:1.4; }
+.nav-info span { color:#880e4f; font-weight:700; }
+.nav-btns { display:flex; gap:7px; flex-shrink:0; }
+
+.results-screen { background:white; border-radius:14px; padding:24px 16px; box-shadow:0 2px 12px rgba(0,0,0,.08); margin-top:14px; text-align:center; }
+.score-circle { width:108px; height:108px; border-radius:50%; margin:0 auto 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:1.85rem; font-weight:900; color:white; }
+.score-good { background:linear-gradient(135deg,#4caf50,#81c784); }
+.score-mid  { background:linear-gradient(135deg,#ff9800,#ffb74d); }
+.score-low  { background:linear-gradient(135deg,#f44336,#e57373); }
+.score-sub  { font-size:.72rem; font-weight:600; opacity:.9; margin-top:2px; }
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:14px 0; }
+.stat-card { border-radius:10px; padding:12px 6px; }
+.stat-card .n { font-size:1.4rem; font-weight:800; }
+.stat-card .l { font-size:.7rem; margin-top:2px; }
+.stat-correct { background:#e8f5e9; color:#2e7d32; }
+.stat-wrong   { background:#ffebee; color:#c62828; }
+.stat-skip    { background:#fff8e1; color:#f57f17; }
+
+.area-row { display:grid; grid-template-columns:1fr 60px 42px; gap:7px; align-items:center; margin-bottom:9px; }
+.area-name { font-size:.78rem; font-weight:600; color:#333; text-align:left; }
+.area-bar-wrap { background:#f0f0f0; border-radius:10px; height:8px; overflow:hidden; }
+.area-bar { height:100%; border-radius:10px; transition:width .6s; }
+.area-pct { font-size:.78rem; font-weight:700; text-align:right; }
+
+.weak-banner { background:linear-gradient(135deg,#fff8e1,#ffecb3); border-left:4px solid #f9a825; padding:12px 14px; border-radius:9px; margin:13px 0; text-align:left; }
+.weak-banner h4 { color:#e65100; margin-bottom:6px; font-size:.87rem; }
+.weak-banner p  { font-size:.77rem; color:#555; margin-bottom:8px; line-height:1.5; }
+.weak-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.weak-tag { background:white; color:#e65100; padding:4px 10px; border-radius:15px; font-size:.72rem; border:1px solid #ffb74d; font-weight:600; }
+
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">📋</div>
+  <div class="header-text">
+    <h1>Subdirección de Verificación en Campo</h1>
+    <p>DERFE · Padrón · Depuración · 🔀 Aleatorio</p>
+  </div>
+  <div class="header-right">
+    <div class="timer" id="timer">50:00</div>
+    <div class="t-lbl">tiempo restante</div>
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+<div class="main">
+  <div class="start-screen" id="startScreen">
+    <h2>📋 Simulacro · Subdirección de Verificación en Campo</h2>
+    <p style="background:#fce4ec;border-radius:10px;padding:10px;color:#880e4f;font-weight:600;margin-bottom:13px;font-size:.81rem">
+      🎯 Dirección Ejecutiva del Registro Federal de Electores (DERFE)
+    </p>
+    <div class="level-banner">
+      <strong>⚡ NIVEL AVANZADO</strong> — Padrón Electoral y Lista Nominal · Procesos de verificación y depuración · Reincorporación · Verificación en campo · Estadística descriptiva · Construcción de indicadores.
+    </div>
+    <div class="formats-banner">
+      <strong>📝 FORMATOS INCLUIDOS:</strong><br>
+      🟢 <strong>Directo:</strong> pregunta con 3 opciones sustantivas<br>
+      🔵 <strong>Secuencia:</strong> ordena elementos según un criterio<br>
+      🟣 <strong>Relación:</strong> vincula 2 columnas de conceptos<br>
+      🟠 <strong>Caso práctico:</strong> escenario y decisión institucional
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="num">40</div><div class="lbl">Preguntas</div></div>
+      <div class="info-card"><div class="num">50</div><div class="lbl">Minutos</div></div>
+      <div class="info-card"><div class="num">5</div><div class="lbl">Áreas</div></div>
+    </div>
+    <div class="topic-section">
+      <div class="topic-section-title">📋 1. Padrón Electoral y Lista Nominal (11 preguntas)</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>1.1 Formación y actualización RFE</span><span class="cnt">8</span></div>
+        <div class="topic-pill"><span>1.2 Comisiones de vigilancia</span><span class="cnt">2</span></div>
+        <div class="topic-pill"><span>1.3 Cartografía electoral</span><span class="cnt">1</span></div>
+      </div>
+      <div class="topic-section-title">🔍 2. Procesos de verificación y depuración (5 preguntas)</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>2.1 Exclusión del Padrón</span><span class="cnt">2</span></div>
+        <div class="topic-pill"><span>2.2 Verificación del Padrón</span><span class="cnt">3</span></div>
+      </div>
+      <div class="topic-section-title">🗂️ 3. Depuración del Padrón Electoral (5 preguntas)</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>3.1 Procedimientos de depuración</span><span class="cnt">2</span></div>
+        <div class="topic-pill"><span>3.2 Reincorporación al Padrón</span><span class="cnt">3</span></div>
+      </div>
+      <div class="topic-section-title">🏘️ 4. Verificación en campo (5 preguntas)</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>4.1 Domicilios irregulares</span><span class="cnt">5</span></div>
+      </div>
+      <div class="topic-section-title">📊 5. Habilidades técnicas y operativas (14 preguntas)</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>5.1 Capacitación</span><span class="cnt">1</span></div>
+        <div class="topic-pill"><span>5.2 Planeación operativa</span><span class="cnt">2</span></div>
+        <div class="topic-pill"><span>5.3 Estadística descriptiva</span><span class="cnt">6</span></div>
+        <div class="topic-pill"><span>5.4 Construcción de indicadores</span><span class="cnt">5</span></div>
+      </div>
+    </div>
+    <div style="background:#f5f5f5;border-radius:9px;padding:10px 12px;margin-bottom:14px;font-size:.7rem;color:#555;text-align:left;line-height:1.6">
+      <strong style="color:#880e4f">📚 BIBLIOGRAFÍA OFICIAL (guía INE)</strong><br>
+      • LGIPE (Cámara de Diputados, 2024)<br>
+      • CEPAL (2005) — Indicadores de desempeño en el sector público<br>
+      • CONEVAL (2014) — Manual para el diseño y construcción de indicadores<br>
+      • INE/CG159/2020 — Lineamientos para Incorporación, Actualización, Exclusión y Reincorporación<br>
+      • INE (2020) — Procedimiento de Reincorporación por Notificación Judicial<br>
+      • INE (2020) — Procedimiento de Reincorporación por petición ciudadana en MAC<br>
+      • INE/CNV14/JUN/2023 — Medios de identificación para la Credencial para Votar<br>
+      • INE (2023) — Verificación Nacional Muestral 2023
+    </div>
+    <button class="btn btn-primary btn-lg" style="width:100%" onclick="startExam()">Comenzar simulacro →</button>
+  </div>
+
+  <div id="examScreen" class="hidden"></div>
+  <div id="resultsScreen" class="hidden"></div>
+</div>
+
+<div class="nav-bar hidden" id="navBar">
+  <div class="nav-info">
+    Preg. <span id="navCurrent">1</span> de <span id="navTotal">40</span>
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary btn-sm" id="btnPrev" onclick="prevQ()">← Ant.</button>
+    <button class="btn btn-primary  btn-sm" id="btnNext" onclick="nextQ()">Sig. →</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   BANCO DE PREGUNTAS — SUBDIRECCIÓN DE VERIFICACIÓN EN CAMPO
+   Distribución oficial (Guía INE, 40 preguntas):
+     1.1 Formación y actualización RFE             8
+     1.2 Comisiones de vigilancia                  2
+     1.3 Cartografía electoral                     1
+     2.1 Exclusión del Padrón Electoral            2
+     2.2 Verificación del Padrón Electoral         3
+     3.1 Procedimientos de depuración              2
+     3.2 Reincorporación al Padrón Electoral       3
+     4.1 Tratamiento de domicilios irregulares     5
+     5.1 Estrategias de capacitación               1
+     5.2 Planeación de operativos de campo         2
+     5.3 Estadística descriptiva                   6
+     5.4 Construcción de indicadores               5
+                                          TOTAL: 40
+═══════════════════════════════════════════════════════════════ */
+const Q = [
+
+  /* ══════════════════════════════════
+     1.1  FORMACIÓN Y ACTUALIZACIÓN RFE  (8)
+  ══════════════════════════════════ */
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"dir",
+    q:"Conforme a la LGIPE, ¿cuál es la diferencia sustantiva entre el Padrón Electoral y la Lista Nominal de Electores?",
+    o:["Son términos equivalentes que la ley usa indistintamente para designar el mismo registro ciudadano",
+       "El Padrón Electoral es la base de datos que contiene el registro de las ciudadanas y ciudadanos que solicitaron su inscripción, mientras que la Lista Nominal contiene únicamente el nombre de aquellas personas incluidas en el Padrón que cuentan con su Credencial para Votar vigente",
+       "El Padrón Electoral es una versión pública de la Lista Nominal que pueden consultar libremente los partidos políticos"],
+    c:1,
+    ex:"La LGIPE (arts. 147 y 148) distingue claramente: el Padrón Electoral integra a todas las personas que solicitaron su inscripción con la información que proporcionaron, mientras que la Lista Nominal de Electores contiene a los que ya cuentan con Credencial para Votar vigente. Una persona puede estar en el Padrón pero no en la Lista Nominal (por ejemplo, cuando no ha recogido su credencial o ésta perdió vigencia). Son instrumentos registrales distintos y complementarios." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"rel",
+    relTitle:"Relacione cada trámite registral con su efecto en el Padrón Electoral",
+    colA:{ title:"Trámite ciudadano", items:[
+      "Inscripción por primera vez al Padrón Electoral",
+      "Cambio de domicilio",
+      "Corrección de datos personales",
+      "Reposición por robo o extravío de la Credencial"] },
+    colB:{ title:"Efecto registral", items:[
+      "a) Genera un nuevo registro en el Padrón y causa alta en la Lista Nominal una vez entregada la Credencial",
+      "b) Actualiza el domicilio en el Padrón y reubica al ciudadano en la sección electoral correspondiente",
+      "c) Actualiza los datos en el Padrón sin modificar la ubicación geoelectoral",
+      "d) Genera una nueva Credencial con el mismo folio OCR/CIC sin modificar los datos personales; el registro se mantiene en la Lista Nominal",
+      "e) Cancela definitivamente el registro en el Padrón Electoral"] },
+    q:"Seleccione la opción con las relaciones correctas:",
+    o:["1a, 2b, 3c, 4d",
+       "1e, 2a, 3b, 4c",
+       "1b, 2c, 3a, 4e"],
+    c:0,
+    ex:"(1) Inscripción → genera nuevo registro y alta en Lista Nominal al entregar Credencial (a). (2) Cambio de domicilio → actualiza domicilio y reubica en sección correspondiente (b). (3) Corrección de datos → actualiza datos sin cambiar geografía electoral (c). (4) Reposición → nueva Credencial manteniendo registro y vigencia en Lista Nominal (d). La opción 'e' es distractor: ningún trámite ordinario cancela el registro." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"dir",
+    q:"Conforme al Acuerdo INE/CNV14/JUN/2023, ¿cuál es el criterio vigente respecto a los medios de identificación admisibles para solicitar la Credencial para Votar en territorio nacional?",
+    o:["Únicamente se admite el acta de nacimiento y la identificación con fotografía vigente emitida por autoridad federal",
+       "Se aceptan diversos medios de identificación agrupados en categorías (identificaciones oficiales con fotografía, documentos probatorios de identidad, identificaciones institucionales, entre otros) con el fin de ampliar el acceso ciudadano a la credencialización respetando los estándares de confiabilidad del Padrón",
+       "Sólo se admite el pasaporte mexicano y la cartilla del Servicio Militar Nacional"],
+    c:1,
+    ex:"El Acuerdo INE/CNV14/JUN/2023 modificó los medios de identificación para ampliar el acceso ciudadano a la credencialización, reconociendo múltiples categorías de documentos probatorios. Esto responde al principio de progresividad del derecho al sufragio y a la política institucional de inclusión, sin menoscabo de los controles de confiabilidad que garantizan la integridad del Padrón." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"seq",
+    listadoTitle:"Pasos del trámite de inscripción al Padrón Electoral en un Módulo de Atención Ciudadana (desordenados):",
+    listado:[
+      "Entrega de la Credencial para Votar al ciudadano previa verificación biométrica de identidad",
+      "Presentación del ciudadano en el MAC con los documentos de identificación requeridos",
+      "Producción de la Credencial para Votar e incorporación del registro a la Lista Nominal",
+      "Captura de datos personales, toma de fotografía, firma y huellas dactilares",
+      "Emisión del comprobante con folio de trámite para seguimiento ciudadano"],
+    q:"¿Cuál es la secuencia correcta del procedimiento?",
+    o:["2, 4, 5, 3, 1",
+       "4, 2, 3, 5, 1",
+       "2, 5, 4, 1, 3"],
+    c:0,
+    ex:"Orden correcto: (2) Presentación con documentos → (4) Captura de datos biométricos y personales → (5) Entrega de comprobante con folio → (3) Producción de la Credencial e incorporación a Lista Nominal → (1) Entrega con verificación biométrica. La verificación biométrica previa a la entrega es un control antifraude clave introducido para evitar suplantación de identidad." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"dir",
+    q:"Respecto a la Credencial para Votar, ¿cuál es la regla general sobre su vigencia y su efecto en la permanencia del registro en la Lista Nominal de Electores?",
+    o:["La Credencial tiene vigencia indefinida y su vencimiento no afecta la permanencia del ciudadano en la Lista Nominal",
+       "La Credencial tiene vigencia determinada (actualmente 10 años desde su emisión); al vencer, el registro del ciudadano causa baja de la Lista Nominal si no se realiza el trámite de renovación, pero permanece en el Padrón Electoral hasta que el ciudadano renueve o se actualice el movimiento",
+       "Al vencer la Credencial, el ciudadano pierde definitivamente su registro tanto en el Padrón como en la Lista Nominal sin posibilidad de reincorporación"],
+    c:1,
+    ex:"La Credencial para Votar tiene vigencia de 10 años. Al vencer y no renovarse, el ciudadano causa baja de la Lista Nominal (no puede ejercer el voto con esa Credencial), pero su registro permanece en el Padrón Electoral. Al realizar el trámite de renovación o actualización, el ciudadano se reincorpora a la Lista Nominal. Esta distinción entre los dos instrumentos registrales es clave para la depuración." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"cas",
+    p:"Una ciudadana se presenta en el MAC manifestando que hace 8 años tramitó su Credencial y que nunca la recogió. Solicita saber su situación registral y si puede votar en la próxima elección, que será en 4 meses.",
+    pt:"Caso práctico · Credencial no recogida",
+    q:"¿Cuál es la respuesta técnicamente correcta conforme a los Lineamientos (INE/CG159/2020)?",
+    o:["La ciudadana perdió su derecho al voto y debe esperar un año para iniciar un nuevo trámite",
+       "La Credencial no recogida en el plazo establecido por la normativa es destruida; la ciudadana aparece en el Padrón pero no en la Lista Nominal vigente. Debe realizar un nuevo trámite de actualización o reposición dentro del plazo legal para tramitar la Credencial y ser incorporada a la Lista Nominal antes del cierre de ésta previo a la jornada electoral",
+       "Puede exigir que se le entregue la Credencial original sin trámite adicional pues la elaboró hace 8 años"],
+    c:1,
+    ex:"Las Credenciales no recogidas en el plazo que establece la normativa son destruidas conforme a los Lineamientos. El registro en el Padrón puede permanecer, pero no hay Credencial vigente para integrar a la Lista Nominal. La ciudadana debe hacer nuevo trámite dentro del plazo legal (generalmente hasta enero o febrero del año de elección, según calendario); fuera de ese plazo no podrá votar en esa elección aunque tenga derecho a credencializarse." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"dir",
+    q:"Conforme a la LGIPE y al Reglamento de Elecciones, ¿qué carácter jurídico tienen los datos personales contenidos en el Padrón Electoral y la Lista Nominal?",
+    o:["Son información pública de acceso irrestricto para cualquier persona que lo solicite",
+       "Son datos personales protegidos: su tratamiento se rige por los principios de licitud, finalidad, proporcionalidad y seguridad; únicamente tienen acceso las personas autorizadas (partidos políticos con fines estrictamente electorales, autoridades competentes por mandato de ley, el propio titular); su uso indebido constituye infracción y, en su caso, delito",
+       "Son información reservada por 30 años sin excepción alguna"],
+    c:1,
+    ex:"Los datos personales del Padrón y Lista Nominal tienen protección reforzada conforme a la LFPDPPP, la LGTAIP, la LGIPE y el Reglamento de Elecciones. Los partidos políticos sólo acceden para fines electorales específicos y bajo cadena de responsabilidad. Las autoridades competentes acceden por mandato legal (INE, TEPJF, Fiscalía en materia electoral, autoridades judiciales). El uso indebido da lugar a responsabilidad administrativa, civil y/o penal." },
+
+  { sa:"1.1", sal:"Formación y actualización RFE", area:"Padrón y Lista Nominal", t:"dir",
+    q:"¿Cuál es el marco constitucional y legal que fundamenta la existencia del Registro Federal de Electores y la obligación ciudadana de inscribirse?",
+    o:["Es una obligación administrativa sin fundamento constitucional, regulada únicamente por acuerdos del Consejo General",
+       "Deriva del art. 36 fracción I de la CPEUM (obligación ciudadana de inscribirse en el Registro Nacional de Ciudadanos y en el registro electoral) y del art. 41 constitucional que establece al INE como responsable de la función estatal electoral; la LGIPE desarrolla en su Libro Cuarto el marco operativo del RFE, Padrón, Lista Nominal y Credencial para Votar",
+       "Sólo tiene fundamento en la legislación secundaria y puede suprimirse por acuerdo del Consejo General del INE"],
+    c:1,
+    ex:"El art. 36 fracción I CPEUM establece la obligación del ciudadano de inscribirse en el registro electoral y en el Registro Nacional de Ciudadanos. El art. 41 constitucional crea al INE como autoridad electoral y la LGIPE (Libro Cuarto) desarrolla el marco operativo del RFE. Esta estructura jerárquica (constitucional-legal-reglamentaria) es fundamental para comprender el carácter autónomo e irrenunciable de las funciones registrales del INE." },
+
+  /* ══════════════════════════════════
+     1.2  COMISIONES DE VIGILANCIA  (2)
+  ══════════════════════════════════ */
+  { sa:"1.2", sal:"Comisiones de vigilancia", area:"Padrón y Lista Nominal", t:"dir",
+    q:"Conforme a la LGIPE y al Reglamento de las Comisiones de Vigilancia, ¿cuál es la naturaleza y función principal de las Comisiones de Vigilancia locales y distritales del RFE?",
+    o:["Son órganos internos del INE conformados exclusivamente por servidores públicos de la DERFE",
+       "Son órganos colegiados integrados por representantes de los partidos políticos nacionales y por personal del INE, encargados de vigilar los métodos y procedimientos de inscripción, actualización, cambio de domicilio, depuración del Padrón y entrega de la Credencial para Votar; coadyuvan con la DERFE con voz y opiniones no vinculantes salvo los casos expresamente previstos",
+       "Son tribunales especializados que resuelven controversias en materia de padrón con efectos vinculantes para el Consejo General"],
+    c:1,
+    ex:"Las Comisiones de Vigilancia (Nacional, Locales y Distritales) son órganos colegiados de vigilancia del RFE integrados por representantes de partidos políticos nacionales y personal institucional (art. 157 LGIPE y su Reglamento). Su función es vigilar y coadyuvar con los procedimientos registrales; emiten opiniones y acuerdos de recomendación, no son tribunales. La Subdirección de Verificación en Campo interactúa regularmente con estas Comisiones al reportar resultados de operativos." },
+
+  { sa:"1.2", sal:"Comisiones de vigilancia", area:"Padrón y Lista Nominal", t:"cas",
+    p:"En sesión de una Comisión Local de Vigilancia, el representante de un partido político solicita que se suspenda un operativo de verificación en campo argumentando que los datos preliminares mostrarán altos niveles de domicilios irregulares y ello podría afectar la imagen del Padrón antes del proceso electoral.",
+    pt:"Caso práctico · Operativo de verificación",
+    q:"¿Cuál es la postura técnica y jurídicamente correcta de la Subdirección de Verificación en Campo?",
+    o:["Suspender el operativo para evitar cuestionamientos, pues las opiniones de la Comisión son vinculantes",
+       "Continuar el operativo conforme al programa aprobado, explicando en sesión los alcances metodológicos, los controles de calidad aplicados y que la transparencia en los resultados fortalece —no debilita— la confiabilidad del Padrón; las opiniones de la Comisión son valiosas pero sólo son vinculantes en los supuestos expresamente previstos por la normativa",
+       "Escalar el asunto a Consejo General para que éste decida si se cancela el operativo"],
+    c:1,
+    ex:"Las opiniones y recomendaciones de las Comisiones de Vigilancia son generalmente no vinculantes (salvo supuestos expresos). Los operativos aprobados por los órganos competentes del INE no se suspenden por razones de imagen. Al contrario, los procedimientos de verificación y depuración robustecen al Padrón: detectar inconsistencias y tratarlas es el fin del proceso. Corresponde al área técnica explicar con transparencia la metodología y los controles aplicados." },
+
+  /* ══════════════════════════════════
+     1.3  CARTOGRAFÍA ELECTORAL  (1)
+  ══════════════════════════════════ */
+  { sa:"1.3", sal:"Cartografía electoral", area:"Padrón y Lista Nominal", t:"dir",
+    q:"¿Cuál es la función sustantiva de la cartografía electoral respecto al Padrón Electoral y qué unidades territoriales comprende?",
+    o:["Es un producto meramente informativo sin vinculación con el Padrón Electoral",
+       "Es el instrumento que delimita las unidades geográficas electorales (entidad, distrito federal, distrito local, municipio, sección electoral y manzana); permite asociar cada registro del Padrón a su ubicación geoelectoral, sustenta la conformación de Listas Nominales por sección, la planeación de operativos de verificación en campo y la distribución de materiales electorales",
+       "Sólo se utiliza para planear las campañas electorales de los partidos políticos"],
+    c:1,
+    ex:"La cartografía electoral es la base territorial del Padrón: cada registro debe asociarse a una sección electoral concreta, la unidad básica de la geografía electoral. La cartografía comprende manzanas, secciones, distritos locales, distritos federales, municipios y entidades. Sustenta la Lista Nominal seccional, la ubicación de casillas, la planeación de operativos de campo (rutas, muestras, PUSINEX) y la distribución de materiales. Sin cartografía actualizada, la verificación en campo sería inviable." },
+
+
+  /* ══════════════════════════════════
+     2.1  EXCLUSIÓN DEL PADRÓN ELECTORAL  (2)
+  ══════════════════════════════════ */
+  { sa:"2.1", sal:"Exclusión del Padrón Electoral", area:"Verificación y Depuración", t:"dir",
+    q:"Conforme al Acuerdo INE/CG159/2020, ¿cuáles son las causales jurídicas por las cuales procede la exclusión de un registro del Padrón Electoral?",
+    o:["Cualquier inconsistencia administrativa detectada por el personal operativo da lugar a exclusión inmediata",
+       "La exclusión procede por causales específicas previstas en la LGIPE y los Lineamientos: fallecimiento (previa notificación o confirmación), suspensión de derechos políticos por resolución judicial, pérdida de la nacionalidad mexicana, duplicidad de registros (se conserva el más reciente), registros con datos presuntamente irregulares debidamente acreditados, y las demás que la ley o el Acuerdo señalen",
+       "La exclusión procede únicamente por petición expresa del titular del registro"],
+    c:1,
+    ex:"Los Lineamientos (INE/CG159/2020) establecen causales taxativas de exclusión: defunción, suspensión de derechos políticos (resolución judicial firme), pérdida de nacionalidad, duplicidad, irregularidades acreditadas, entre otras. Cada causal requiere fundamento probatorio específico (acta de defunción, notificación judicial, etc.). No cabe exclusión arbitraria ni por inconsistencias administrativas sin procedimiento; se garantiza el derecho de audiencia y la revisión de la Comisión de Vigilancia cuando corresponde." },
+
+  { sa:"2.1", sal:"Exclusión del Padrón Electoral", area:"Verificación y Depuración", t:"rel",
+    relTitle:"Relacione cada causal de exclusión con el documento o procedimiento que la acredita",
+    colA:{ title:"Causal de exclusión", items:[
+      "Fallecimiento del ciudadano",
+      "Suspensión de derechos políticos",
+      "Pérdida de la nacionalidad mexicana",
+      "Duplicidad de registros"] },
+    colB:{ title:"Medio de acreditación", items:[
+      "a) Acta de defunción o notificación del Registro Civil al INE conforme a los convenios de colaboración",
+      "b) Resolución judicial firme notificada al INE por la autoridad jurisdiccional competente",
+      "c) Comunicación oficial de la Secretaría de Relaciones Exteriores al INE",
+      "d) Análisis técnico de coincidencias biométricas y documentales; se conserva el registro más reciente y se notifica al ciudadano",
+      "e) Simple manifestación de un tercero sin documento soporte"] },
+    q:"Seleccione la opción con las relaciones correctas:",
+    o:["1a, 2b, 3c, 4d",
+       "1e, 2a, 3b, 4c",
+       "1b, 2d, 3a, 4e"],
+    c:0,
+    ex:"(1) Fallecimiento → acta de defunción o notificación del Registro Civil (a). (2) Suspensión de derechos políticos → resolución judicial firme (b). (3) Pérdida de nacionalidad → comunicación de SRE (c). (4) Duplicidad → análisis biométrico-documental y conservación del registro más reciente (d). La opción 'e' es distractor: ningún procedimiento de exclusión se basa en manifestaciones sin soporte documental; se requiere acto jurídico o técnico formal." },
+
+  /* ══════════════════════════════════
+     2.2  VERIFICACIÓN DEL PADRÓN ELECTORAL  (3)
+  ══════════════════════════════════ */
+  { sa:"2.2", sal:"Verificación del Padrón Electoral", area:"Verificación y Depuración", t:"dir",
+    q:"¿Cuál es la finalidad de la Verificación Nacional Muestral (VNM) y qué tipo de información produce?",
+    o:["Es un censo completo y anual de todos los registros del Padrón Electoral",
+       "Es un estudio muestral estadísticamente representativo que tiene por objeto estimar los principales indicadores de calidad del Padrón Electoral y la Lista Nominal: cobertura (proporción de ciudadanos registrados respecto de la población objetivo), actualización (correspondencia entre domicilio registrado y domicilio real) y consistencia; sus resultados permiten evaluar la confiabilidad y retroalimentan los programas de depuración",
+       "Es una encuesta de opinión sobre la percepción ciudadana del INE"],
+    c:1,
+    ex:"La VNM es un estudio muestral con rigor metodológico (diseño probabilístico, estimación con error y nivel de confianza) que mide indicadores clave: cobertura, actualización y consistencia del Padrón y la Lista Nominal. No es censo (sería inviable) ni encuesta de opinión. Sus resultados son insumo del COTEPE, las Comisiones de Vigilancia y la DERFE para retroalimentar los programas operativos. La Subdirección de Verificación en Campo tiene un rol central en su planeación y ejecución." },
+
+  { sa:"2.2", sal:"Verificación del Padrón Electoral", area:"Verificación y Depuración", t:"seq",
+    listadoTitle:"Etapas operativas de una Verificación en Campo (desordenadas):",
+    listado:[
+      "Análisis de resultados, cálculo de indicadores y elaboración del informe final",
+      "Diseño muestral y selección de manzanas/viviendas a visitar",
+      "Capacitación al personal verificador y supervisores",
+      "Levantamiento en campo: visitas domiciliarias, entrevistas y registro de información",
+      "Definición de objetivos, universo de estudio y variables a medir"],
+    q:"¿Cuál es la secuencia correcta del operativo?",
+    o:["5, 2, 3, 4, 1",
+       "2, 5, 3, 1, 4",
+       "3, 2, 5, 4, 1"],
+    c:0,
+    ex:"Orden: (5) Definición de objetivos y universo → (2) Diseño muestral → (3) Capacitación al personal → (4) Levantamiento en campo → (1) Análisis y reporte. La lógica es planeación técnica previa al operativo, ejecución ordenada con personal capacitado y cierre con evaluación de resultados. Saltarse cualquier etapa compromete la validez estadística de los indicadores." },
+
+  { sa:"2.2", sal:"Verificación del Padrón Electoral", area:"Verificación y Depuración", t:"cas",
+    p:"En el levantamiento de una Verificación Nacional Muestral en un municipio rural, el personal verificador reporta que en el 18% de las viviendas seleccionadas no fue posible hacer la entrevista: en unas no había residentes mayores de edad al momento de las tres visitas, en otras los domicilios estaban deshabitados y en otras la ciudadanía se negó a participar.",
+    pt:"Caso práctico · No respuesta en la VNM",
+    q:"¿Cuál es el tratamiento metodológicamente adecuado?",
+    o:["Eliminar esas viviendas del análisis como si nunca hubieran sido seleccionadas y reducir el tamaño de la muestra efectiva",
+       "Documentar de manera clara cada tipo de no respuesta (ausencia temporal, vivienda deshabitada, rechazo), aplicar los mecanismos de reposición o sustitución que el diseño muestral prevea cuando corresponda, reportar la tasa de no respuesta en el informe final y considerar ese factor en la interpretación y en los intervalos de confianza de las estimaciones",
+       "Inventar respuestas plausibles para no afectar los resultados del operativo"],
+    c:1,
+    ex:"La no respuesta es inevitable en estudios muestrales de campo. El tratamiento correcto incluye: (1) clasificación clara por tipo de no respuesta; (2) aplicación de mecanismos de reposición previstos en el diseño, cuando la normativa operativa lo permita; (3) reporte transparente de la tasa de no respuesta; (4) análisis de posible sesgo e impacto en intervalos de confianza. Eliminar sin documentar sesga la inferencia; inventar datos es fraude estadístico y falta grave." },
+
+  /* ══════════════════════════════════
+     3.1  PROCEDIMIENTOS DE DEPURACIÓN  (2)
+  ══════════════════════════════════ */
+  { sa:"3.1", sal:"Procedimientos de depuración", area:"Depuración del Padrón", t:"dir",
+    q:"¿Qué se entiende por depuración del Padrón Electoral conforme al marco normativo del INE?",
+    o:["Es únicamente la eliminación masiva de registros sin revisión individualizada",
+       "Es el conjunto de procedimientos preventivos y correctivos mediante los cuales se identifican, revisan y, en su caso, se excluyen del Padrón los registros que no cumplen los requisitos legales para permanecer, así como los procesos de reincorporación cuando procede; busca mantener la confiabilidad del instrumento registral respetando los derechos político-electorales de la ciudadanía",
+       "Es una campaña publicitaria para invitar a los ciudadanos a verificar sus datos"],
+    c:1,
+    ex:"La depuración es un proceso técnico y jurídico que combina acciones preventivas (detección temprana de inconsistencias, controles de calidad en el ingreso de trámites) y correctivas (exclusión con causa justificada, reincorporación cuando procede). Su objetivo es la confiabilidad del Padrón sin afectar indebidamente derechos político-electorales. Se ejecuta con procedimientos auditables, garantías de debido proceso y vigilancia de las Comisiones y del COTEPE." },
+
+  { sa:"3.1", sal:"Procedimientos de depuración", area:"Depuración del Padrón", t:"rel",
+    relTitle:"Relacione cada tipo de acción de depuración con su carácter",
+    colA:{ title:"Acción", items:[
+      "Contraste del Padrón con registros de defunción del Registro Civil",
+      "Detección de duplicidad biométrica en la captura del trámite",
+      "Notificación de suspensión de derechos políticos por resolución judicial",
+      "Verificación en campo de domicilios presuntamente irregulares"] },
+    colB:{ title:"Carácter de la acción", items:[
+      "a) Correctiva · se aplica sobre registros ya existentes en el Padrón",
+      "b) Preventiva · se aplica antes de que el registro se incorpore al Padrón",
+      "c) Correctiva · iniciada por acto de autoridad externa al INE",
+      "d) Correctiva · combina trabajo de campo y gabinete para confirmar la irregularidad",
+      "e) Meramente informativa · sin efectos registrales"] },
+    q:"Seleccione la opción con las relaciones correctas:",
+    o:["1a, 2b, 3c, 4d",
+       "1e, 2a, 3b, 4c",
+       "1c, 2d, 3a, 4b"],
+    c:0,
+    ex:"(1) Contraste con Registro Civil → correctiva sobre registros existentes (a). (2) Duplicidad biométrica en trámite → preventiva, antes del alta (b). (3) Suspensión judicial → correctiva por acto externo notificado (c). (4) Verificación en campo de domicilios → correctiva, combina campo y gabinete (d). La opción 'e' es distractor: todas las acciones citadas producen efectos registrales. La distinción preventiva/correctiva es clave para la planeación de la Subdirección." },
+
+  /* ══════════════════════════════════
+     3.2  REINCORPORACIÓN AL PADRÓN  (3)
+  ══════════════════════════════════ */
+  { sa:"3.2", sal:"Reincorporación al Padrón", area:"Depuración del Padrón", t:"dir",
+    q:"¿En qué consiste el procedimiento de reincorporación al Padrón Electoral y qué supuestos lo activan?",
+    o:["Es un procedimiento excepcional que sólo aplica por error administrativo del INE",
+       "Es el procedimiento mediante el cual los ciudadanos que fueron excluidos del Padrón Electoral recuperan su registro cuando cesa la causa que motivó la exclusión; los supuestos típicos incluyen la rehabilitación de derechos políticos por notificación judicial, la petición ciudadana en el MAC cuando se acredita que cesó la causa, y otros supuestos previstos en los Lineamientos",
+       "Sólo procede a solicitud expresa de un partido político"],
+    c:1,
+    ex:"La reincorporación salvaguarda los derechos político-electorales: cuando cesa la causa de exclusión, el ciudadano debe poder recuperar su registro. Los dos procedimientos principales son: (a) por notificación judicial (rehabilitación de derechos políticos, conforme al Procedimiento INE 2020), y (b) por petición ciudadana en el MAC (Procedimiento INE 2020), cuando el ciudadano acredita el cese de la causa. Ambos están reglamentados y requieren documentación soporte." },
+
+  { sa:"3.2", sal:"Reincorporación al Padrón", area:"Depuración del Padrón", t:"cas",
+    p:"Un ciudadano acude al MAC con oficio original de la autoridad jurisdiccional que lo sentenció, en el que se informa que cumplió la pena y que han cesado los efectos de la suspensión de derechos políticos que le fue impuesta. Solicita su reincorporación al Padrón Electoral.",
+    pt:"Caso práctico · Reincorporación por cumplimiento de pena",
+    q:"Conforme al Procedimiento de Reincorporación (INE 2020), ¿cuál es la actuación correcta?",
+    o:["Negar la reincorporación pues una vez suspendidos los derechos políticos no es posible recuperarlos",
+       "Recibir la documentación, verificar la autenticidad del oficio judicial por los medios institucionales, cotejar que la causa efectivamente cesó, realizar el acto de reincorporación conforme al procedimiento normado e informar a las instancias correspondientes (Comisión de Vigilancia, DERFE) para los registros estadísticos y de seguimiento",
+       "Remitir al ciudadano a iniciar un juicio contra el INE para obtener la reincorporación"],
+    c:1,
+    ex:"La rehabilitación de derechos políticos por cumplimiento de pena o por resolución judicial específica es un supuesto típico de reincorporación. La actuación debida implica: (1) recepción documental; (2) verificación de autenticidad del oficio judicial; (3) cotejo del cese de la causa; (4) ejecución del procedimiento conforme a norma; (5) informes a instancias correspondientes. Negar sin más sería violatorio de derechos humanos; remitir a juicio es improcedente cuando hay un procedimiento administrativo expresamente normado." },
+
+  { sa:"3.2", sal:"Reincorporación al Padrón", area:"Depuración del Padrón", t:"seq",
+    listadoTitle:"Actuaciones del procedimiento de reincorporación por notificación judicial (desordenadas):",
+    listado:[
+      "Ejecución del acto de reincorporación en el sistema registral y notificación al ciudadano",
+      "Recepción de la notificación judicial por parte del INE",
+      "Verificación de la autenticidad del documento y de los datos del ciudadano rehabilitado",
+      "Informe a la Comisión Nacional de Vigilancia y actualización de reportes estadísticos",
+      "Cotejo del registro del ciudadano en la base histórica del Padrón Electoral"],
+    q:"¿Cuál es la secuencia correcta?",
+    o:["2, 3, 5, 1, 4",
+       "3, 2, 1, 5, 4",
+       "2, 5, 3, 4, 1"],
+    c:0,
+    ex:"Orden: (2) Recepción de la notificación → (3) Verificación de autenticidad → (5) Cotejo en base histórica → (1) Ejecución y notificación al ciudadano → (4) Informe a Comisión de Vigilancia y reportes. La lógica es: acto externo recibido → validación → localización del registro → ejecución → reporte. Cada paso deja huella documental auditable, requisito esencial del control interno en procesos sensibles de derechos políticos." },
+
+
+  /* ══════════════════════════════════
+     4.1  TRATAMIENTO DE DOMICILIOS IRREGULARES  (5)
+  ══════════════════════════════════ */
+  { sa:"4.1", sal:"Domicilios irregulares", area:"Verificación en campo", t:"dir",
+    q:"¿Qué se considera un registro con datos de domicilio presuntamente irregular en el Padrón Electoral?",
+    o:["Cualquier domicilio rural o de difícil acceso geográfico",
+       "Son los registros cuyos datos de domicilio muestran indicios objetivos de inconsistencia respecto de la ubicación real del ciudadano: inexistencia del domicilio, domicilios no habitacionales (predios baldíos, oficinas públicas, negocios), concentración atípica de registros en un mismo domicilio, o elementos que hagan razonablemente dudar de que el ciudadano reside en la ubicación declarada; su tratamiento sigue el procedimiento establecido y garantiza el derecho de audiencia",
+       "Son únicamente los domicilios que el ciudadano declara fuera de su entidad de residencia"],
+    c:1,
+    ex:"El concepto de 'domicilio irregular' es técnico: incluye domicilios inexistentes, no habitacionales, con concentración atípica de registros, o cuyas características indican que no corresponden a la residencia real. La detección requiere indicios objetivos (no sospechas). Su tratamiento está normado: verificación en campo, garantía de audiencia al ciudadano, y, en su caso, procedimiento para depuración. Esta es un área central de trabajo de la Subdirección de Verificación en Campo." },
+
+  { sa:"4.1", sal:"Domicilios irregulares", area:"Verificación en campo", t:"seq",
+    listadoTitle:"Etapas del procedimiento de tratamiento de registros con datos de domicilio presuntamente irregulares (desordenadas):",
+    listado:[
+      "Notificación al ciudadano con otorgamiento del derecho de audiencia para manifestar lo que a su derecho convenga",
+      "Detección mediante análisis de gabinete (cruces de información) o reportes de campo",
+      "Resolución final: confirmación o descarte de la irregularidad, con efectos registrales según corresponda",
+      "Visita de verificación en campo al domicilio reportado",
+      "Integración del expediente con constancias documentales de las actuaciones realizadas"],
+    q:"¿Cuál es la secuencia correcta?",
+    o:["2, 4, 5, 1, 3",
+       "4, 2, 1, 5, 3",
+       "2, 1, 4, 3, 5"],
+    c:0,
+    ex:"Orden: (2) Detección (gabinete/campo) → (4) Visita de verificación en campo → (5) Integración del expediente → (1) Notificación al ciudadano con audiencia → (3) Resolución final. La garantía de audiencia (art. 14 CPEUM) debe otorgarse ANTES de cualquier resolución con efectos registrales; la evidencia de campo y la integración documental son requisitos previos para notificar al ciudadano con información precisa." },
+
+  { sa:"4.1", sal:"Domicilios irregulares", area:"Verificación en campo", t:"cas",
+    p:"Durante una verificación en campo, el personal verificador llega al domicilio de un ciudadano reportado como posiblemente irregular. En el lugar indicado sí existe una vivienda habitada, pero quien atiende manifiesta que el ciudadano vive ahí desde hace 3 años aunque actualmente está trabajando temporalmente en otra entidad y regresa cada fin de semana.",
+    pt:"Caso práctico · Residencia habitual con ausencia temporal",
+    q:"¿Cuál es la conclusión técnica adecuada?",
+    o:["Reportar como domicilio irregular pues el ciudadano no estaba presente durante la visita",
+       "Registrar la información obtenida conforme al instrumento de captación; la ausencia temporal del ciudadano por motivos laborales, de estudio o similares no implica por sí misma irregularidad en el domicilio si existe vínculo de residencia habitual demostrable; la determinación final requiere integración con otros elementos del procedimiento y, en su caso, notificación y audiencia al ciudadano",
+       "Concluir que el domicilio es irregular sin notificar al ciudadano"],
+    c:1,
+    ex:"El concepto jurídico de domicilio (art. 29 CCF supletorio) incluye la residencia habitual aunque haya ausencias temporales. La ausencia por trabajo, estudio, salud o similar NO constituye per se irregularidad si existe vínculo real con la vivienda. El personal de campo registra los hechos observados y recaba información objetiva; la calificación final corresponde al procedimiento integral que incluye garantía de audiencia. Confundir ausencia con irregularidad violaría derechos fundamentales." },
+
+  { sa:"4.1", sal:"Domicilios irregulares", area:"Verificación en campo", t:"dir",
+    q:"En la verificación en campo, ¿qué principios deben observar el personal verificador y los supervisores al realizar las visitas domiciliarias?",
+    o:["Pueden ingresar a las viviendas sin autorización si consideran necesario verificar los datos",
+       "Deben observar los principios de identificación institucional, respeto a la dignidad y a la privacidad de las personas, no invasión del domicilio (la verificación se realiza en la puerta o en espacio exterior salvo autorización expresa), confidencialidad en el manejo de información, registro íntegro y objetivo de los hechos, y acatamiento a los protocolos y procedimientos aprobados; además debe cumplirse la obligación de registro en el RENAVID cuando aplique",
+       "Pueden recabar cualquier información sin identificarse ni informar al ciudadano del propósito de la visita"],
+    c:1,
+    ex:"Las visitas domiciliarias del INE son actos administrativos con estándares estrictos: (1) identificación institucional visible; (2) respeto a dignidad y privacidad (arts. 14 y 16 CPEUM); (3) no invasión del domicilio sin autorización expresa; (4) confidencialidad (LGPDPPSO y demás normativa); (5) registro objetivo; (6) apego a protocolos aprobados; (7) registro en el RENAVID cuando corresponda. Estos principios protegen al ciudadano y dan validez jurídica al operativo." },
+
+  { sa:"4.1", sal:"Domicilios irregulares", area:"Verificación en campo", t:"rel",
+    relTitle:"Relacione cada situación detectada en campo con el tratamiento procedimental que corresponde",
+    colA:{ title:"Situación en campo", items:[
+      "Domicilio localizado, ciudadano reconocido como residente habitual por vecinos",
+      "Domicilio inexistente o predio baldío sin nomenclatura",
+      "Vivienda deshabitada según información de vecinos y del entorno",
+      "Ciudadano localizado en el domicilio que confirma sus datos registrales"] },
+    colB:{ title:"Tratamiento procedimental", items:[
+      "a) Registrar el hallazgo como confirmación de residencia; el registro permanece sin afectación",
+      "b) Reportar como presunta irregularidad con la evidencia recabada; continuar con notificación al ciudadano y, en su caso, procedimiento de exclusión",
+      "c) Registrar la información recabada; la sola deshabitación no equivale a irregularidad si existen elementos que sugieran domicilio temporalmente vacío (p. ej. inmueble en renta); se da seguimiento conforme al procedimiento y, en su caso, notificación con audiencia",
+      "d) Registrar la corroboración como dato plenamente confirmatorio y cerrar el caso",
+      "e) Eliminar el registro inmediatamente sin más trámite"] },
+    q:"Seleccione la opción con las relaciones correctas:",
+    o:["1a, 2b, 3c, 4d",
+       "1e, 2a, 3b, 4c",
+       "1b, 2c, 3d, 4a"],
+    c:0,
+    ex:"(1) Residencia reconocida por vecinos → confirmación sin afectación (a). (2) Domicilio inexistente o baldío → presunción de irregularidad con evidencia + notificación (b). (3) Vivienda deshabitada → registro con seguimiento; la deshabitación puede ser temporal; no equivale automáticamente a irregularidad (c). (4) Ciudadano confirma datos → corroboración plena y cierre del caso (d). La opción 'e' es distractor: ninguna exclusión procede sin procedimiento con garantía de audiencia." },
+
+
+  /* ══════════════════════════════════
+     5.1  ESTRATEGIAS DE CAPACITACIÓN  (1)
+  ══════════════════════════════════ */
+  { sa:"5.1", sal:"Estrategias de capacitación", area:"Habilidades técnicas", t:"dir",
+    q:"En los operativos de campo del INE, ¿cuál es el papel sustantivo de la capacitación al personal verificador y supervisor, y qué elementos debe contemplar una estrategia de capacitación efectiva?",
+    o:["La capacitación es un trámite administrativo cuya única finalidad es cumplir un requisito documental",
+       "La capacitación es condición de calidad y validez del operativo: prepara al personal para aplicar correctamente los procedimientos, instrumentos de captación y protocolos; una estrategia efectiva contempla objetivos de aprendizaje, contenidos técnicos y normativos, metodología (presencial y/o a distancia), materiales didácticos, prácticas simuladas, mecanismos de evaluación del aprendizaje y retroalimentación, y un calendario que asegure que todo el personal esté capacitado antes del inicio del levantamiento",
+       "Basta con entregar un manual al personal y pedir que lo lea por su cuenta"],
+    c:1,
+    ex:"La capacitación es un eje crítico del éxito operativo. Una estrategia efectiva incluye: objetivos medibles, contenidos técnicos (procedimiento, instrumentos) y normativos (privacidad, identificación), metodología mixta (Campus Virtual INE + presencial), prácticas simuladas con casos reales, evaluación diagnóstica/formativa/sumativa, retroalimentación y calendario realista. Sin capacitación robusta, se compromete la calidad de la información, la seguridad del personal y los derechos ciudadanos." },
+
+  /* ══════════════════════════════════
+     5.2  PLANEACIÓN DE OPERATIVOS DE CAMPO  (2)
+  ══════════════════════════════════ */
+  { sa:"5.2", sal:"Planeación de operativos", area:"Habilidades técnicas", t:"seq",
+    listadoTitle:"Fases de planeación de un operativo de verificación en campo (desordenadas):",
+    listado:[
+      "Ejecución del operativo con supervisión, control de calidad en línea y atención de incidencias",
+      "Definición de objetivos, universo y cobertura geográfica del operativo",
+      "Diseño metodológico: muestra, instrumentos de captación, variables y controles de calidad",
+      "Cierre, procesamiento, análisis y reporte de resultados con indicadores",
+      "Planeación logística: rutas, personal, materiales, cronograma y presupuesto"],
+    q:"¿Cuál es la secuencia correcta del ciclo de planeación-ejecución?",
+    o:["2, 3, 5, 1, 4",
+       "3, 2, 1, 5, 4",
+       "2, 5, 3, 4, 1"],
+    c:0,
+    ex:"Orden: (2) Definición de objetivos y universo → (3) Diseño metodológico → (5) Planeación logística → (1) Ejecución supervisada → (4) Cierre, análisis y reporte. Es el ciclo PHVA aplicado a operativos de campo: Planear (definir, diseñar, preparar logística), Hacer (ejecutar con supervisión), Verificar (control de calidad), Actuar (análisis y mejora). Cada fase produce insumos concretos para la siguiente; saltarse etapas genera costos y errores." },
+
+  { sa:"5.2", sal:"Planeación de operativos", area:"Habilidades técnicas", t:"cas",
+    p:"La Subdirección debe planear un operativo de verificación en campo en una entidad federativa de gran extensión, con zonas urbanas, rurales y de difícil acceso. Los recursos humanos y presupuestales son limitados y el calendario requiere entregar resultados en 90 días naturales.",
+    pt:"Caso práctico · Planeación con restricciones",
+    q:"¿Cuál es el enfoque de planeación técnicamente adecuado?",
+    o:["Ejecutar el operativo sólo en zonas urbanas de fácil acceso para asegurar cumplir en tiempo",
+       "Diseñar el operativo sobre bases de representatividad (muestra estadísticamente válida que incluya estratos urbano-rural y zonas de difícil acceso con ponderadores adecuados), optimizar rutas y tramos de control, estimar cargas de trabajo realistas, prever reservas operativas para imprevistos, establecer hitos de control en el cronograma y mecanismos de reporte continuo; documentar decisiones y supuestos para su trazabilidad",
+       "Extender el calendario unilateralmente ignorando la fecha comprometida"],
+    c:1,
+    ex:"La planeación técnica con restricciones exige: (1) muestra representativa (no muestra conveniente) con estratificación adecuada, incluyendo zonas difíciles mediante ponderadores; (2) optimización logística (rutas, tramos de control, cargas de trabajo); (3) holguras para imprevistos; (4) cronograma con hitos; (5) trazabilidad de decisiones. Restringir a zonas fáciles sesga los resultados y compromete la validez; ignorar plazos afecta el compromiso institucional. El reto es hacer más con menos sin sacrificar calidad." },
+
+
+  /* ══════════════════════════════════
+     5.3  ESTADÍSTICA DESCRIPTIVA  (6)
+  ══════════════════════════════════ */
+  { sa:"5.3", sal:"Estadística descriptiva", area:"Habilidades técnicas", t:"dir",
+    q:"En el contexto de un operativo de verificación, ¿qué diferencia existe entre una variable cualitativa y una variable cuantitativa, y cuándo se usa cada una?",
+    o:["Son sinónimos estadísticos; la distinción es meramente formal",
+       "Las variables cualitativas expresan categorías o atributos no numéricos (p. ej. tipo de vivienda, resultado de la visita: localizado/no localizado); admiten frecuencias y proporciones. Las variables cuantitativas expresan cantidades numéricas (p. ej. número de visitas realizadas, edad del entrevistado); admiten medidas de tendencia central (media, mediana, moda) y de dispersión (varianza, desviación estándar, rango)",
+       "Las cualitativas se usan sólo en censos y las cuantitativas sólo en muestras"],
+    c:1,
+    ex:"La distinción es fundamental. Las cualitativas (nominales/ordinales) describen categorías: tipo de vivienda, estatus de la entrevista, etc.; los estadísticos pertinentes son frecuencias, proporciones y moda. Las cuantitativas (discretas/continuas) miden cantidades: número de visitas, edad, etc.; admiten media, mediana, desviación estándar, etc. Aplicar estadísticos inadecuados al tipo de variable produce análisis sin significado (p. ej., 'media' de 'tipo de vivienda')." },
+
+  { sa:"5.3", sal:"Estadística descriptiva", area:"Habilidades técnicas", t:"dir",
+    q:"¿Qué diferencia existe entre la media, la mediana y la moda, y en qué casos conviene reportar cada una?",
+    o:["Son nombres distintos para el mismo indicador; cualquiera sirve indistintamente",
+       "La media es el promedio aritmético y refleja bien el centro de distribuciones simétricas sin valores extremos. La mediana es el valor central que divide la distribución en dos mitades y es más robusta ante valores atípicos o distribuciones sesgadas. La moda es el valor más frecuente y es la única medida aplicable a variables cualitativas nominales. En reportes se elige la medida más representativa del fenómeno descrito y suele reportarse más de una para dar contexto",
+       "La media siempre es mejor que la mediana, que a su vez siempre es mejor que la moda"],
+    c:1,
+    ex:"Cada medida tiene su uso. Media: sensible a extremos, apta para distribuciones simétricas (p. ej. tiempo promedio de entrevista en una muestra homogénea). Mediana: robusta ante outliers y asimetrías (p. ej. ingreso, donde valores atípicos distorsionan la media). Moda: única aplicable a cualitativas nominales (p. ej. tipo de vivienda más frecuente). En reportes técnicos, informar más de una medida mejora la comprensión del fenómeno. Usar la incorrecta puede engañar al lector." },
+
+  { sa:"5.3", sal:"Estadística descriptiva", area:"Habilidades técnicas", t:"rel",
+    relTitle:"Relacione cada medida estadística con su tipo y utilidad principal",
+    colA:{ title:"Medida estadística", items:[
+      "Desviación estándar",
+      "Rango (máximo - mínimo)",
+      "Coeficiente de variación",
+      "Cuartiles (Q1, Q2, Q3)"] },
+    colB:{ title:"Tipo y utilidad", items:[
+      "a) Medida de dispersión absoluta alrededor de la media; en las mismas unidades que la variable",
+      "b) Medida de dispersión simple que muestra la amplitud total de los datos; muy sensible a valores atípicos",
+      "c) Medida de dispersión relativa (DE / media × 100%); permite comparar la variabilidad entre conjuntos con unidades o magnitudes distintas",
+      "d) Medidas de posición que dividen la distribución ordenada en cuatro partes iguales; útiles para describir distribuciones asimétricas",
+      "e) Medida de tendencia central aplicable sólo a variables nominales"] },
+    q:"Seleccione la opción con las relaciones correctas:",
+    o:["1a, 2b, 3c, 4d",
+       "1e, 2a, 3b, 4c",
+       "1c, 2d, 3a, 4b"],
+    c:0,
+    ex:"(1) Desviación estándar → dispersión absoluta en unidades de la variable (a). (2) Rango → dispersión simple, muy sensible a atípicos (b). (3) Coeficiente de variación → dispersión relativa para comparar conjuntos con distintas magnitudes (c). (4) Cuartiles → posición, útiles en distribuciones asimétricas (d). La opción 'e' es distractor: ninguna de las citadas es medida de tendencia central para nominales." },
+
+  { sa:"5.3", sal:"Estadística descriptiva", area:"Habilidades técnicas", t:"cas",
+    p:"Un operativo reportó los siguientes porcentajes de viviendas con ciudadano localizado en 5 distritos: 92%, 89%, 94%, 87% y 3% (distrito con severos problemas de acceso por desastre natural). La subdirección debe decidir qué medida resumen reportar a la Comisión de Vigilancia.",
+    pt:"Caso práctico · Elección de medida resumen",
+    q:"¿Cuál es el análisis estadísticamente más adecuado?",
+    o:["Reportar únicamente la media aritmética: (92+89+94+87+3)/5 = 73%",
+       "Reportar la mediana (89%) como medida robusta ante el valor atípico, acompañada de la media y una nota técnica que identifique el dato atípico, sus causas contextuales y que, en su caso, sugiera reportar también los resultados excluyendo al distrito afectado; reportar sólo la media (73%) sin contexto puede inducir a conclusiones equivocadas",
+       "Descartar el distrito problemático sin documentar y reportar sólo la media de los otros cuatro"],
+    c:1,
+    ex:"La distribución 92, 89, 94, 87, 3 tiene un valor atípico (outlier) evidente. La media (73%) es distorsionada por ese valor; la mediana (89%) refleja mejor la tendencia. El análisis correcto reporta ambas medidas, identifica el atípico con su causa (desastre natural), y ofrece análisis con y sin ese distrito. Reportar sólo la media engaña al lector; descartar sin documentar es falta de transparencia. El reporte técnico honesto muestra el fenómeno completo con contexto." },
+
+  { sa:"5.3", sal:"Estadística descriptiva", area:"Habilidades técnicas", t:"dir",
+    q:"En un estudio muestral como la Verificación Nacional Muestral, ¿qué es un error de muestreo y cómo se expresa en el reporte de resultados?",
+    o:["Es un error cometido por el personal verificador al llenar los cuestionarios",
+       "Es la diferencia esperada entre la estimación obtenida de la muestra y el valor verdadero del parámetro en la población; su magnitud depende del tamaño y diseño muestral; en el reporte se expresa mediante el error estándar, los intervalos de confianza (p. ej. IC 95%) y el nivel de precisión de las estimaciones",
+       "Es un error ortográfico en el reporte final"],
+    c:1,
+    ex:"El error de muestreo es inherente a todo estudio muestral: al observar una muestra y no la población, hay una diferencia estimable entre el estimador y el parámetro. Se controla con diseño muestral adecuado y se reporta con error estándar, intervalos de confianza (típicamente 95%) y precisión relativa. Confundir error de muestreo con errores no muestrales (errores de medición, de cobertura, de no respuesta) es común pero técnicamente incorrecto; ambos se documentan por separado." },
+
+  { sa:"5.3", sal:"Estadística descriptiva", area:"Habilidades técnicas", t:"dir",
+    q:"¿Qué información debe contener una tabla o gráfico estadístico bien elaborado en un reporte de verificación en campo?",
+    o:["Sólo los números, sin más explicación, para no cargar el documento",
+       "Debe contener: título descriptivo, unidades de medida, fuente de los datos, periodo al que corresponden, notas técnicas cuando sea necesario (p. ej. base de cálculo, exclusiones), leyenda clara en gráficos, escalas sin distorsión visual, y cuando sean estimaciones muestrales, los intervalos de confianza o errores estándar correspondientes; debe permitir que el lector comprenda el dato sin tener que recurrir al texto",
+       "Únicamente los datos más favorables a la institución"],
+    c:1,
+    ex:"Una tabla o gráfico debe ser autocontenido y honesto. Elementos: título claro, unidades, fuente, periodo, notas técnicas, leyenda, escalas sin distorsión (p. ej. no manipular ejes para exagerar diferencias), e intervalos de confianza en estimaciones muestrales. La visualización estadística es una herramienta de comunicación y transparencia; los principios de CEPAL y CONEVAL enfatizan la rendición de cuentas mediante reportes comprensibles, reproducibles y sin sesgo de presentación." },
+
+
+  /* ══════════════════════════════════
+     5.4  CONSTRUCCIÓN DE INDICADORES  (5)
+  ══════════════════════════════════ */
+  { sa:"5.4", sal:"Construcción de indicadores", area:"Habilidades técnicas", t:"dir",
+    q:"Conforme a la metodología de CEPAL y CONEVAL, ¿qué es un indicador de desempeño y cuáles son sus atributos esenciales?",
+    o:["Es cualquier número extraído de un sistema de información sin criterio específico",
+       "Es una expresión cuantitativa o cualitativa que permite medir el cumplimiento de objetivos y metas de un programa, proceso o política pública; sus atributos esenciales son: claridad, relevancia, economía, monitoreabilidad, adecuación y aporte marginal (CREMA); debe tener definición precisa, fórmula de cálculo, unidad de medida, frecuencia, fuente, línea base y meta",
+       "Es una opinión subjetiva sobre el funcionamiento de un programa"],
+    c:1,
+    ex:"Un indicador de desempeño (CEPAL 2005, CONEVAL 2014) es una medición sistemática del avance hacia objetivos. Los atributos CREMA (Claro, Relevante, Económico, Monitoreable y Adecuado) son el estándar internacional. Ficha técnica básica: nombre, definición, fórmula de cálculo, unidad, frecuencia de medición, fuente, línea base, meta. Sin estos elementos no hay indicador propiamente dicho, sólo un número suelto sin interpretación rigurosa." },
+
+  { sa:"5.4", sal:"Construcción de indicadores", area:"Habilidades técnicas", t:"rel",
+    relTitle:"Relacione cada tipo de indicador con su dimensión de medición",
+    colA:{ title:"Tipo de indicador", items:[
+      "Indicador de eficacia",
+      "Indicador de eficiencia",
+      "Indicador de economía",
+      "Indicador de calidad"] },
+    colB:{ title:"Dimensión que mide", items:[
+      "a) Grado de cumplimiento de los objetivos y metas planteados (¿se logró lo planeado?)",
+      "b) Relación entre los productos/resultados obtenidos y los recursos utilizados (¿se logró con el menor costo posible?)",
+      "c) Capacidad para generar y movilizar adecuadamente los recursos financieros (¿se administran bien los recursos?)",
+      "d) Atributos de los bienes/servicios entregados desde la perspectiva del usuario (oportunidad, accesibilidad, precisión, satisfacción)",
+      "e) Antigüedad promedio de los registros administrativos"] },
+    q:"Seleccione la opción con las relaciones correctas:",
+    o:["1a, 2b, 3c, 4d",
+       "1e, 2a, 3b, 4c",
+       "1b, 2c, 3d, 4a"],
+    c:0,
+    ex:"(1) Eficacia → cumplimiento de objetivos (a). (2) Eficiencia → resultados vs recursos usados (b). (3) Economía → adecuada administración de recursos financieros (c). (4) Calidad → atributos desde perspectiva del usuario (d). Esta tipología (CEPAL/CONEVAL) es la taxonomía estándar en el sector público. Las cuatro dimensiones son complementarias; un programa puede ser eficaz pero ineficiente, o económico pero de baja calidad. La opción 'e' es distractor." },
+
+  { sa:"5.4", sal:"Construcción de indicadores", area:"Habilidades técnicas", t:"cas",
+    p:"La Subdirección debe diseñar un indicador para medir el desempeño del proceso de tratamiento de registros con domicilio irregular. La meta institucional es que los casos detectados sean atendidos con oportunidad y calidad.",
+    pt:"Caso práctico · Diseño de indicador",
+    q:"¿Cuál sería una construcción técnicamente sólida del indicador?",
+    o:["Reportar únicamente el total absoluto de casos atendidos sin referencia a meta o periodo",
+       "Definir un indicador con: nombre claro (p. ej. 'Porcentaje de registros con domicilio irregular atendidos dentro del plazo'), fórmula [(casos atendidos en plazo / casos detectados) × 100], unidad (porcentaje), frecuencia (mensual o por periodo operativo), fuente (sistema institucional), línea base (periodo anterior), meta (p. ej. 90%) y, opcionalmente, un indicador complementario de calidad (% de casos confirmados tras audiencia vs. casos descartados)",
+       "Inventar una cifra sin metodología clara para presentar buenos resultados"],
+    c:1,
+    ex:"Un buen indicador de proceso combina: cobertura (porcentaje atendido), oportunidad (plazo), calidad (precisión de la detección medida por casos confirmados vs. descartados). La ficha debe explicitar todos los elementos técnicos. Reportar totales absolutos sin referencia no permite evaluar desempeño; inventar cifras es fraude e ilegal. El enfoque CONEVAL/CEPAL de indicadores balanceados (proceso + resultado) es el estándar. La Subdirección debe liderar esta cultura de medición." },
+
+  { sa:"5.4", sal:"Construcción de indicadores", area:"Habilidades técnicas", t:"seq",
+    listadoTitle:"Pasos metodológicos para la construcción de un indicador (desordenados):",
+    listado:[
+      "Documentación en ficha técnica (fórmula, unidad, frecuencia, fuente, línea base, meta)",
+      "Identificación del objetivo o resultado que se desea medir",
+      "Recolección de datos, cálculo y validación del indicador en un periodo piloto",
+      "Definición conceptual y operativa de las variables del indicador",
+      "Comunicación de resultados, análisis y retroalimentación para la mejora"],
+    q:"¿Cuál es la secuencia correcta conforme a CONEVAL (2014)?",
+    o:["2, 4, 1, 3, 5",
+       "4, 2, 1, 5, 3",
+       "2, 1, 3, 4, 5"],
+    c:0,
+    ex:"Orden: (2) Identificación del objetivo a medir → (4) Definición conceptual y operativa de variables → (1) Documentación en ficha técnica → (3) Recolección, cálculo y validación piloto → (5) Comunicación y retroalimentación. Es el ciclo PHVA aplicado a indicadores: primero el 'qué' (objetivo), luego el 'cómo' (definición y ficha), después el 'hacer' (piloto) y finalmente el 'aprender' (análisis y mejora). Saltar del objetivo al cálculo sin definición operativa genera indicadores ambiguos." },
+
+  { sa:"5.4", sal:"Construcción de indicadores", area:"Habilidades técnicas", t:"dir",
+    q:"¿Qué riesgos metodológicos debe evitar un indicador al momento de diseñarse e interpretarse?",
+    o:["No hay riesgos metodológicos; cualquier indicador es válido mientras produzca un número",
+       "Debe evitarse: ambigüedad en la definición, falta de relación causal con el objetivo (indicador no pertinente), sensibilidad excesiva a factores externos no controlables, duplicidad con otros indicadores, costo de medición desproporcionado al beneficio informativo, y efectos perversos (p. ej. incentivar la cantidad en detrimento de la calidad); además, debe interpretarse considerando el contexto y no como verdad absoluta aislada",
+       "Sólo deben preocupar los errores aritméticos en el cálculo"],
+    c:1,
+    ex:"Los riesgos de indicadores mal diseñados son bien documentados (CEPAL, CONEVAL, Goodhart's Law). Principales: (1) ambigüedad; (2) falta de pertinencia; (3) sensibilidad a factores externos; (4) duplicidad; (5) costo desproporcionado; (6) efectos perversos ('When a measure becomes a target, it ceases to be a good measure'). La interpretación requiere contexto: un indicador aislado rara vez cuenta toda la historia. Por eso se recomiendan sistemas balanceados de indicadores y triangulación con análisis cualitativo." }
+
+];
+
+/* ═══════════════════════════════════════════════════
+   ALEATORIZACIÓN
+═══════════════════════════════════════════════════ */
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function shuffleOptions(q) {
+  const indices = [0, 1, 2];
+  const shuffled = shuffleArray(indices);
+  return { ...q, o: shuffled.map(i => q.o[i]), c: shuffled.indexOf(q.c) };
+}
+const SUBS = ["1.1","1.2","1.3","2.1","2.2","3.1","3.2","4.1","5.1","5.2","5.3","5.4"];
+const shuffledQ = SUBS.flatMap(sub =>
+  shuffleArray(Q.filter(q => q.sa === sub)).map(q => shuffleOptions(q))
+);
+Q.length = 0;
+shuffledQ.forEach(q => Q.push(q));
+
+const TIME_LIMIT = 50 * 60;
+let answers, revealed, current, timerInterval, secondsLeft;
+
+const SS = {
+  "1.1":{bg:"#e8eaf6",color:"#1a237e",icon:"📋"},
+  "1.2":{bg:"#e3f2fd",color:"#0d47a1",icon:"👥"},
+  "1.3":{bg:"#e0f2f1",color:"#004d40",icon:"🗺️"},
+  "2.1":{bg:"#ffebee",color:"#b71c1c",icon:"🚫"},
+  "2.2":{bg:"#fff3e0",color:"#e65100",icon:"🔍"},
+  "3.1":{bg:"#f3e5f5",color:"#4a148c",icon:"🗂️"},
+  "3.2":{bg:"#e8f5e9",color:"#1b5e20",icon:"♻️"},
+  "4.1":{bg:"#fff8e1",color:"#f57f17",icon:"🏘️"},
+  "5.1":{bg:"#e0f7fa",color:"#006064",icon:"🎓"},
+  "5.2":{bg:"#fce4ec",color:"#880e4f",icon:"📐"},
+  "5.3":{bg:"#f1f8e9",color:"#33691e",icon:"📊"},
+  "5.4":{bg:"#ede7f6",color:"#311b92",icon:"📈"}
+};
+
+const TYPE_LABELS = {
+  "dir":{ cls:"dir", label:"🟢 DIRECTO" },
+  "cas":{ cls:"cas", label:"🟠 CASO" },
+  "seq":{ cls:"seq", label:"🔵 SECUENCIA" },
+  "rel":{ cls:"rel", label:"🟣 RELACIÓN" }
+};
+
+function startExam() {
+  answers  = new Array(Q.length).fill(null);
+  revealed = new Array(Q.length).fill(false);
+  current  = 0;
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('examScreen').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  renderQuestion(0);
+  startTimer();
+}
+
+function renderQuestion(idx) {
+  current = idx;
+  const q = Q[idx], sc = SS[q.sa] || {bg:"#fce4ec",color:"#880e4f",icon:"📌"};
+  const isR = revealed[idx], sel = answers[idx];
+
+  let ph = '';
+  if (q.p) ph = `<div class="passage"><div class="passage-label">📄 ${q.pt}</div>${q.p.replace(/\n/g,'<br>')}</div>`;
+
+  let listadoHTML = '';
+  if (q.t === 'seq' && q.listado) {
+    const items = q.listado.map((it, i) => `<li><strong>${i+1}.</strong> ${it}</li>`).join('');
+    listadoHTML = `<div class="listado">
+      <div class="listado-title">📋 ${q.listadoTitle || 'Elementos a ordenar'}</div>
+      <ul style="list-style:none;padding-left:0">${items}</ul>
+    </div>`;
+  }
+
+  let relHTML = '';
+  if (q.t === 'rel' && q.colA && q.colB) {
+    const aItems = q.colA.items.map((it, i) => `<li><strong>${i+1}.</strong> ${it}</li>`).join('');
+    const bItems = q.colB.items.map(it => `<li>${it}</li>`).join('');
+    relHTML = `<div class="listado">
+      <div class="listado-title">🔗 ${q.relTitle || 'Relacione las columnas'}</div>
+      <div class="rel-cols">
+        <div class="rel-col">
+          <div class="rel-col-title">${q.colA.title}</div>
+          <ul style="list-style:none;padding-left:0">${aItems}</ul>
+        </div>
+        <div class="rel-col">
+          <div class="rel-col-title">${q.colB.title}</div>
+          <ul>${bItems}</ul>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const L = ['A','B','C'];
+  const opts = q.o.map((o, i) => {
+    let cls = 'option', icon = '';
+    if (isR) {
+      cls += ' disabled';
+      if (i === q.c) { cls += ' correct'; icon = '<span class="opt-icon">✅</span>'; }
+      else if (i === sel && i !== q.c) { cls += ' incorrect'; icon = '<span class="opt-icon">❌</span>'; }
+    } else if (i === sel) cls += ' selected';
+    return `<div class="${cls}" onclick="selOpt(${idx},${i})">
+      <div class="option-letter">${L[i]}</div>
+      <div class="opt-text">${o}</div>${icon}
+    </div>`;
+  }).join('');
+
+  const ri = isR && sel !== null && sel !== q.c
+    ? ['A','B','C'][sel] + ' era incorrecta'
+    : '';
+
+  const typeInfo = TYPE_LABELS[q.t] || TYPE_LABELS["dir"];
+  const typeBadge = `<span class="q-type ${typeInfo.cls}">${typeInfo.label}</span>`;
+
+  document.getElementById('examScreen').innerHTML = `
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-badge" style="background:${sc.bg};color:${sc.color}">${sc.icon} ${q.sal}</span>
+        <div class="q-right">${typeBadge}<span class="q-num">${idx+1}/${Q.length}</span></div>
+      </div>
+      ${ph}
+      ${listadoHTML}
+      ${relHTML}
+      <div class="question-text">${q.q}</div>
+      <div class="options">${opts}</div>
+      <div class="explanation ${isR ? 'show' : ''}"><strong>${ri}${ri ? ' — ' : ''}Explicación:</strong> ${q.ex}</div>
+    </div>
+    ${!isR && answers[idx] !== null
+      ? `<div class="ver-sol-wrap"><button class="btn-ver-sol" onclick="rev(${idx})">Ver explicación 💡</button></div>`
+      : ''}
+  `;
+
+  document.getElementById('progressBar').style.width = ((idx+1)/Q.length*100) + '%';
+  document.getElementById('navCurrent').textContent = idx + 1;
+  document.getElementById('navTotal').textContent   = Q.length;
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').textContent = idx === Q.length-1 ? '🏁 Finalizar' : 'Sig. →';
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+
+function selOpt(qi, oi) { if (revealed[qi]) return; answers[qi] = oi; renderQuestion(qi); }
+function rev(idx) { revealed[idx] = true; renderQuestion(idx); }
+function nextQ() { if (current < Q.length-1) renderQuestion(current+1); else showResults(); }
+function prevQ() { if (current > 0) renderQuestion(current-1); }
+
+function startTimer() {
+  secondsLeft = TIME_LIMIT;
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    const m = Math.floor(secondsLeft/60).toString().padStart(2,'0');
+    const s = (secondsLeft%60).toString().padStart(2,'0');
+    const el = document.getElementById('timer');
+    el.textContent = `${m}:${s}`;
+    el.className = 'timer' + (secondsLeft < 300 ? ' danger' : secondsLeft < 600 ? ' warning' : '');
+    if (secondsLeft <= 0) { clearInterval(timerInterval); showResults(); }
+  }, 1000);
+}
+
+function showResults() {
+  clearInterval(timerInterval);
+  document.getElementById('examScreen').classList.add('hidden');
+  document.getElementById('navBar').classList.add('hidden');
+
+  const total    = Q.length;
+  const answered = answers.filter(a => a !== null).length;
+  const correct  = answers.filter((a, i) => a === Q[i].c).length;
+  const wrong    = answered - correct;
+  const skipped  = total - answered;
+  const pct      = Math.round(correct / total * 100);
+
+  const areas = {};
+  Q.forEach((q, i) => {
+    if (!areas[q.area]) areas[q.area] = {total:0, correct:0};
+    areas[q.area].total++;
+    if (answers[i] === q.c) areas[q.area].correct++;
+  });
+
+  const subs = {};
+  Q.forEach((q, i) => {
+    if (!subs[q.sa]) subs[q.sa] = {label:q.sal, total:0, correct:0};
+    subs[q.sa].total++;
+    if (answers[i] === q.c) subs[q.sa].correct++;
+  });
+
+  const types = {};
+  Q.forEach((q, i) => {
+    const t = q.t || "dir";
+    if (!types[t]) types[t] = {total:0, correct:0};
+    types[t].total++;
+    if (answers[i] === q.c) types[t].correct++;
+  });
+
+  const weak = Object.entries(subs).filter(([,s]) => s.correct/s.total < 0.6).map(([,s]) => s.label);
+  const cc   = pct >= 70 ? 'score-good' : pct >= 50 ? 'score-mid' : 'score-low';
+  const msg  = pct >= 80 ? '¡Excelente! Dominas los procesos de verificación en campo.'
+             : pct >= 60 ? 'Buen nivel. Refuerza los temas marcados.'
+             : 'Diagnóstico listo. Estudia los temas señalados antes del examen.';
+
+  const areaColors = {
+    "Padrón y Lista Nominal":     "#1a237e",
+    "Verificación y Depuración":  "#e65100",
+    "Depuración del Padrón":      "#4a148c",
+    "Verificación en campo":      "#f57f17",
+    "Habilidades técnicas":       "#33691e"
+  };
+
+  const rows = Object.entries(areas).map(([name, a]) => {
+    const p    = Math.round(a.correct / a.total * 100);
+    const icon = p >= 80 ? '✅' : p >= 60 ? '⚠️' : '❌';
+    const bc   = p >= 60
+      ? `linear-gradient(90deg,${areaColors[name]||'#880e4f'},#e91e8c)`
+      : 'linear-gradient(90deg,#c62828,#ef5350)';
+    return `<div class="area-row">
+      <div class="area-name">${icon} ${name}</div>
+      <div class="area-bar-wrap"><div class="area-bar" style="width:${p}%;background:${bc}"></div></div>
+      <div class="area-pct" style="color:${p>=60?'#880e4f':'#c62828'}">${p}%</div>
+    </div>`;
+  }).join('');
+
+  const typeLabelsMap = {"dir":"🟢 Directo","cas":"🟠 Caso","seq":"🔵 Secuencia","rel":"🟣 Relación"};
+  const typeRows = Object.entries(types).map(([t, a]) => {
+    const p = Math.round(a.correct / a.total * 100);
+    const bc = p >= 60
+      ? 'linear-gradient(90deg,#880e4f,#e91e8c)'
+      : 'linear-gradient(90deg,#c62828,#ef5350)';
+    return `<div class="area-row">
+      <div class="area-name">${typeLabelsMap[t]} (${a.correct}/${a.total})</div>
+      <div class="area-bar-wrap"><div class="area-bar" style="width:${p}%;background:${bc}"></div></div>
+      <div class="area-pct" style="color:${p>=60?'#880e4f':'#c62828'}">${p}%</div>
+    </div>`;
+  }).join('');
+
+  const wb = weak.length
+    ? `<div class="weak-banner"><h4>🎯 Estudia esto primero:</h4><p>Menos del 60% en estas subáreas. Son clave para el cargo.</p><div class="weak-tags">${weak.map(t=>`<span class="weak-tag">📌 ${t}</span>`).join('')}</div></div>`
+    : `<div style="background:#fce4ec;border-radius:10px;padding:13px;margin:13px 0;color:#880e4f;font-weight:600">✅ ¡Dominas todas las áreas!</div>`;
+
+  const tu = TIME_LIMIT - secondsLeft;
+  const tm = Math.floor(tu/60), ts = tu%60;
+
+  document.getElementById('resultsScreen').innerHTML = `
+    <div class="results-screen">
+      <div style="background:#fce4ec;border-radius:10px;padding:9px 14px;margin-bottom:16px;font-size:.8rem;color:#880e4f;font-weight:600">
+        📋 DIAGNÓSTICO · SUBDIRECCIÓN SVC — ${new Date().toLocaleDateString('es-MX')}
+      </div>
+      <div class="score-circle ${cc}">${pct}%<div class="score-sub">${correct}/${total}</div></div>
+      <h2 style="margin-bottom:7px">${msg}</h2>
+      <p style="margin-bottom:18px;color:#777;font-size:.83rem">Tiempo: ${tm}m ${ts}s · Respondidas: ${answered}/${total}</p>
+      <div class="stats-grid">
+        <div class="stat-card stat-correct"><div class="n">${correct}</div><div class="l">✅ Correctas</div></div>
+        <div class="stat-card stat-wrong"><div class="n">${wrong}</div><div class="l">❌ Incorrectas</div></div>
+        <div class="stat-card stat-skip"><div class="n">${skipped}</div><div class="l">⏭️ Saltadas</div></div>
+      </div>
+      ${wb}
+      <div style="text-align:left;margin-bottom:22px">
+        <h3 style="font-size:.87rem;font-weight:700;color:#444;margin-bottom:9px">Desempeño por área</h3>
+        ${rows}
+      </div>
+      <div style="text-align:left;margin-bottom:22px">
+        <h3 style="font-size:.87rem;font-weight:700;color:#444;margin-bottom:9px">Desempeño por tipo de reactivo</h3>
+        ${typeRows}
+      </div>
+      <div style="display:flex;gap:9px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" onclick="reviewExam()">Revisar con explicaciones</button>
+        <button class="btn btn-secondary btn-lg" onclick="location.reload()">🔀 Nuevo diagnóstico</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('resultsScreen').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function reviewExam() {
+  document.getElementById('resultsScreen').classList.add('hidden');
+  document.getElementById('examScreen').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  revealed = revealed.map(() => true);
+  renderQuestion(0);
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
